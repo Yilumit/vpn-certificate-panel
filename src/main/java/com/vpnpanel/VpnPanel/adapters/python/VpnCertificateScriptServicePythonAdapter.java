@@ -63,28 +63,7 @@ public class VpnCertificateScriptServicePythonAdapter implements VpnCertificateS
                     "Falha ao criar o certificado para ao usuário" + userNickname + "e obter erro do processo: ", e);
         }
     }
-
-    /**
-     * Lê a saída do processo e retorna a última linha.
-     *
-     * @param process O processo cujo output será lido.
-     * @return A última linha da saída do processo.
-     * @throws RuntimeException Se ocorrer um erro ao ler a saída do processo.
-     */
-    private String getLastOutputProcess(Process process) throws RuntimeException {
-        // Pega apenas a ultima linha da saida do script
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line, lastLine = null;
-            while ((line = reader.readLine()) != null) {
-                lastLine = line;
-            }
-            return lastLine != null ? lastLine.trim() : "";
-        } catch (Exception e) {
-            log.error("Erro ao ler a saída do processo: {}", e.getMessage());
-            throw new RuntimeException("Erro ao ler a saída do processo", e);
-        }
-    }
-
+    
     /**
      * Revoga o certificado VPN para o usuário especificado.
      *
@@ -131,6 +110,27 @@ public class VpnCertificateScriptServicePythonAdapter implements VpnCertificateS
         } catch (Exception e) {
             log.error("Erro ao executar o processo de revogação: {}", e.getMessage());
             throw new VpnCertificateScriptException("Erro ao executar o processo de revogação", e);
+        }
+    }
+
+        /**
+     * Lê a saída do processo e retorna a última linha.
+     *
+     * @param process O processo cujo output será lido.
+     * @return A última linha da saída do processo.
+     * @throws RuntimeException Se ocorrer um erro ao ler a saída do processo.
+     */
+    private String getLastOutputProcess(Process process) throws RuntimeException {
+        // Pega apenas a ultima linha da saida do script
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line, lastLine = null;
+            while ((line = reader.readLine()) != null) {
+                lastLine = line;
+            }
+            return lastLine != null ? lastLine.trim() : "";
+        } catch (Exception e) {
+            log.error("Erro ao ler a saída do processo: {}", e.getMessage());
+            throw new RuntimeException("Erro ao ler a saída do processo", e);
         }
     }
 

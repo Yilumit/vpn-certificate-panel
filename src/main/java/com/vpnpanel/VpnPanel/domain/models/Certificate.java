@@ -50,6 +50,9 @@ public class Certificate {
     @Column(nullable = false)
     private CertificateStatus status;
 
+    public boolean isExpired() {
+        return LocalDateTime.now().isAfter(expiresAt);
+    }
 
     @PrePersist
     protected void onCreate() {

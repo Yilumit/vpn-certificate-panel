@@ -29,11 +29,6 @@ public class CertificateServiceJpaAdapter implements CertificateService {
     }
 
     @Override
-    public List<Certificate> findByUserAndStatus(User user, CertificateStatus status){
-        return certificateRepository.findByUserAndStatus(user, status);
-    }
-
-    @Override
     @Transactional
     public Certificate createCertificate(User user){
 
@@ -47,7 +42,7 @@ public class CertificateServiceJpaAdapter implements CertificateService {
             return certificateRepository.save(certificate);
 
         } catch (Exception e) {
-            throw new VpnCertificateScriptException("Erro na criando o certificado para o usuário: " + user.getNickname(), e);
+            throw new VpnCertificateScriptException("Erro ao criar o certificado para o usuário: " + user.getNickname(), e);
         }
     }
 
@@ -68,6 +63,7 @@ public class CertificateServiceJpaAdapter implements CertificateService {
         try {
             vpnCertificateScriptService.revokeVpnCertificate(user.getNickname(), certificate.getFile());
             certificate.setStatus(CertificateStatus.REVOKED);
+            
             return certificateRepository.save(certificate);
         } catch (Exception e) {
             throw new VpnCertificateScriptException("Erro ao revogar o certificado para o usuário: " + user.getNickname(), e);
@@ -75,6 +71,7 @@ public class CertificateServiceJpaAdapter implements CertificateService {
     }
 
     @Override
+    @Transactional
     public void deleteCertificate(Certificate certificate) {
         
         if (certificate == null || certificate.getId() == null) {
@@ -95,5 +92,25 @@ public class CertificateServiceJpaAdapter implements CertificateService {
     public List<Certificate> listCertificates(User user) {
         return certificateRepository.findByUser(user);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Certificate> listByUserAndActive(User user) {
+        return certificateRepository.findByUserAndStatus(user, CertificateStatus.ACTIVE);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Certificate> listByUserAndRevoked(User user) {
+        return certificateRepository.findByUserAndStatus(user, CertificateStatus.REVOKED);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Certificate> listByUserAndExpired(User user) {
+        return certificateRepository.findByUserAndStatus(user, CertificateStatus.EXPIRED);
+    }  
+
+
 
 }
