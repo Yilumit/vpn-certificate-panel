@@ -2,28 +2,33 @@ package com.vpnpanel.VpnPanel.domain.models;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ConfirmationToken {
-    
-    @Id
+
     private String token;
 
-    @OneToOne
-    @JoinColumn(nullable = false)
+    private LocalDateTime expiresAt;
+
     private User user;
 
-    @Column(name = "expires_at")
-    private LocalDateTime expiresAt;
+    public ConfirmationToken() {}
+
+    public ConfirmationToken(String token, LocalDateTime expiresAt, User user) {
+        this.token = token;
+        this.expiresAt = expiresAt;
+        this.user = user;
+    }
+
+    public boolean isExpired() {
+        return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
+    }
+
+    public String getToken() { return token; }
+    public void setToken(String token) {this.token = token;}
+
+    public LocalDateTime getExpiresAt() {return expiresAt;}
+    public void setExpiresAt(LocalDateTime expiresAt) {this.expiresAt = expiresAt;}
+
+    public User getUser() {return user;}
+    public void setUser(User user) {this.user = user;}
+
 }

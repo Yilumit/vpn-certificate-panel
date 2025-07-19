@@ -12,8 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.vpnpanel.VpnPanel.adapters.security.CustomUserDetailsService;
-import com.vpnpanel.VpnPanel.adapters.security.jwt.JwtAuthenticationFilter;
+import com.vpnpanel.VpnPanel.adapters.out.security.CustomUserDetailsService;
+import com.vpnpanel.VpnPanel.adapters.out.security.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,16 +33,21 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        
-        // Configura o AuthenticationManager com o UserDetailsService e PasswordEncoder
-        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        authBuilder.userDetailsService(userDetailsService)
+                   .passwordEncoder(passwordEncoder());
         return authBuilder.build();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth .requestMatchers("/auth/**").permitAll()
+            .authorizeHttpRequests(auth -> auth .requestMatchers(
+                "/auth/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/**",
+                "/v3/api-docs/**"
+                ).permitAll()
             .anyRequest().authenticated() //qualquer outra requisicao precisa de autenticacao
             )
             .sessionManagement(session -> session

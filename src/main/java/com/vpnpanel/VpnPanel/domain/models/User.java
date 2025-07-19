@@ -4,59 +4,144 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.vpnpanel.VpnPanel.domain.enums.RoleType;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
-@Data
-@Entity
-@Table(name = "users")
 public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nickname", nullable = false, unique = true)
-    private String nickname;
-
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
-
-    @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "password", nullable = true)
+    private String email;
+    private String nickname;
     private String password;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id")) //Tabela intermediaria
     private Set<Role> roles = new HashSet<>();
 
-    @Column(name = "active", nullable = false)
-    private boolean active = true;
+    private boolean active;
 
-    @Column(name = "failed_login_attempts", nullable = false)
-    private int failedLoginAttempts = 0;
+    private int failedLoginAttempts;
+
+    public User() {
+    }
+
+    public static User createWithoutPassword(Long id, String name, String email, String nickname,
+            LocalDateTime createdAt, LocalDateTime updatedAt,
+            Set<Role> roles) {
+
+        User user = new User();
+        user.id = id;
+        user.name = name;
+        user.email = email;
+        user.nickname = nickname;
+        user.createdAt = createdAt;
+        user.updatedAt = updatedAt;
+        user.roles = roles;
+        user.active = false;
+        user.failedLoginAttempts = 0;
+
+        return user;
+    }
+
+    public static User createWithPassword(Long id, String name, String email, String nickname, String password,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt, Set<Role> roles, boolean active, int failedLoginAttempts) {
+
+        User user = createWithoutPassword(id, name, email, nickname, createdAt, updatedAt, roles);
+        user.password = password;
+        user.active = active;
+        user.failedLoginAttempts = failedLoginAttempts;
+
+        return user;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void setUpdatedAt(LocalDateTime now) {
+        this.updatedAt = now;
+    }
+
+    public void setPassword(String encode) {
+        this.password = encode;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public void incrementFailedLoginAttempts() {
+        this.failedLoginAttempts++;
+    }
+
+    public void resetFailedLoginAttempts() {
+        this.failedLoginAttempts = 0;
+    }
+
+    public boolean hasRole(RoleType roleType) {
+        return roles.stream().anyMatch(r -> r.getName() == roleType);
+    }
+
 }
